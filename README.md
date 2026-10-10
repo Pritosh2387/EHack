@@ -38,16 +38,42 @@ This service provides RESTful APIs for:
 
 ## Running the Service
 
-Start the service with:
+## Running Backend and Frontend Simultaneously
+
+To start **both** the FastAPI analytics engine and the React Vite frontend at the same time:
+
 ```bash
-uvicorn ml_service.app.main:app --reload --host 0.0.0.0 --port 8000
+npm start
+# or alternatively:
+./start.sh
 ```
 
-The service will be available at:
-- **Main API**: http://localhost:8000
-- **Health Check**: http://localhost:8000/health
-- **API Documentation**: http://localhost:8000/docs
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
+This single command:
+1. Activates the Python virtual environment and launches the FastAPI service on `http://localhost:8000`.
+2. Starts the React Vite frontend development server on `http://localhost:5173`.
+3. Handles process termination gracefully — pressing `Ctrl+C` cleanly stops both backend and frontend servers together.
+
+---
+
+## Running Services Individually
+
+### Frontend Only:
+```bash
+npm run frontend
+# or: cd frontend && npm run dev
+```
+
+### Backend Only:
+```bash
+npm run backend
+# or: source .venv/bin/activate && uvicorn ml_service.app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Testing & Building:
+```bash
+npm test      # Runs frontend test suites
+npm run build # Generates production bundle in frontend/dist
+```
 
 ## API Endpoints
 

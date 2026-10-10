@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary-forest: #14532D;
+    --primary-forest-hover: #0F3D21;
+    --secondary-green: #2E7D5B;
+    --water-teal: #0F766E;
+    --water-blue: #2563EB;
+    --main-bg: #F7F9F6;
+    --card-bg: #FFFFFF;
+    --text-primary: #17211B;
+    --text-secondary: #66736A;
+    --border-color: #E1E8E1;
+    --warning: #B45309;
+    --critical: #B91C1C;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--main-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Custom utility classes */
+.badge-safe {
+  background-color: #DCFCE7;
+  color: #14532D;
+  border: 1px solid #BBF7D0;
+}
+
+.badge-semi-critical {
+  background-color: #FEF9C3;
+  color: #854D0E;
+  border: 1px solid #FEF08A;
+}
+
+.badge-critical {
+  background-color: #FFEDD5;
+  color: #9A3412;
+  border: 1px solid #FED7AA;
+}
+
+.badge-over-exploited {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.badge-saline {
+  background-color: #F3E8FF;
+  color: #6B21A8;
+  border: 1px solid #E9D5FF;
+}
+
+/* Water footprint color standards */
+.color-green-water {
+  color: #15803d;
+}
+.bg-green-water {
+  background-color: #15803d;
+}
+.color-blue-water {
+  color: #0284c7;
+}
+.bg-blue-water {
+  background-color: #0284c7;
+}
+.color-grey-water {
+  color: #64748b;
+}
+.bg-grey-water {
+  background-color: #64748b;
+}
+
+/* Leaflet container fixes */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  z-index: 10;
+}

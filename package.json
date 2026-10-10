@@ -1,0 +1,24 @@
+{
+  "name": "water-shadow",
+  "version": "0.1.0",
+  "description": "Agricultural Water Footprint Intelligence Platform for India",
+  "private": true,
+  "scripts": {
+    "start": "./start.sh",
+    "dev": "./start.sh",
+    "backend": "source .venv/bin/activate && PYTHONPATH=. uvicorn ml_service.app.main:app --reload --host 0.0.0.0 --port 8000",
+    "frontend": "npm run --prefix frontend dev",
+    "build": "npm run --prefix frontend build",
+    "test": "npm run --prefix frontend test"
+  },
+  "keywords": [
+    "water-footprint",
+    "agriculture",
+    "groundwater",
+    "fastapi",
+    "react",
+    "vite"
+  ],
+  "author": "",
+  "license": "ISC"
+}

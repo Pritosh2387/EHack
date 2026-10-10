@@ -1,0 +1,1872 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Water Shadow Analytics Service",
+    "description": "ML and Analytics Engine for Water Shadow - Agricultural Water Footprint Analysis",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/metadata": {
+      "get": {
+        "tags": [
+          "metadata"
+        ],
+        "summary": "Get Metadata",
+        "operationId": "get_metadata_api_v1_metadata_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data-status": {
+      "get": {
+        "tags": [
+          "data-status"
+        ],
+        "summary": "Get Data Status",
+        "operationId": "get_data_status_api_v1_data_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exports/ledger": {
+      "get": {
+        "tags": [
+          "exports"
+        ],
+        "summary": "Get Exports Ledger",
+        "operationId": "get_exports_ledger_api_v1_exports_ledger_get",
+        "parameters": [
+          {
+            "name": "crop",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Crop to analyze",
+              "title": "Crop"
+            },
+            "description": "Crop to analyze"
+          },
+          {
+            "name": "financial_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Financial year (e.g., 2020-21)",
+              "title": "Financial Year"
+            },
+            "description": "Financial year (e.g., 2020-21)"
+          },
+          {
+            "name": "water_component",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Water component: green, blue, grey, or all",
+              "default": "all",
+              "title": "Water Component"
+            },
+            "description": "Water component: green, blue, grey, or all"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportLedgerResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regions/crop-production": {
+      "get": {
+        "tags": [
+          "regions"
+        ],
+        "summary": "Get Crop Production",
+        "operationId": "get_crop_production_api_v1_regions_crop_production_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "State name",
+              "title": "State"
+            },
+            "description": "State name"
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "District name",
+              "title": "District"
+            },
+            "description": "District name"
+          },
+          {
+            "name": "crop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Crop name",
+              "title": "Crop"
+            },
+            "description": "Crop name"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Year (e.g., 2020-21)",
+              "title": "Year"
+            },
+            "description": "Year (e.g., 2020-21)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CropProductionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regions/groundwater-stress": {
+      "get": {
+        "tags": [
+          "regions"
+        ],
+        "summary": "Get Groundwater Stress",
+        "operationId": "get_groundwater_stress_api_v1_regions_groundwater_stress_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "State name",
+              "title": "State"
+            },
+            "description": "State name"
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "District name",
+              "title": "District"
+            },
+            "description": "District name"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Groundwater category",
+              "title": "Category"
+            },
+            "description": "Groundwater category"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Year",
+              "title": "Year"
+            },
+            "description": "Year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regions/overview": {
+      "get": {
+        "tags": [
+          "regions"
+        ],
+        "summary": "Get Regions Overview",
+        "operationId": "get_regions_overview_api_v1_regions_overview_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "State name",
+              "title": "State"
+            },
+            "description": "State name"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Year for crop production (e.g., 2020-21)",
+              "title": "Year"
+            },
+            "description": "Year for crop production (e.g., 2020-21)"
+          },
+          {
+            "name": "groundwater_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Year for groundwater (e.g., 2020)",
+              "title": "Groundwater Year"
+            },
+            "description": "Year for groundwater (e.g., 2020)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scenarios/crop-shift": {
+      "post": {
+        "tags": [
+          "scenarios"
+        ],
+        "summary": "Simulate Crop Shift",
+        "operationId": "simulate_crop_shift_api_v1_scenarios_crop_shift_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CropShiftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CropShiftResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/optimization/crop-allocation": {
+      "post": {
+        "tags": [
+          "optimization"
+        ],
+        "summary": "Optimize Crop Allocation",
+        "operationId": "optimize_crop_allocation_api_v1_optimization_crop_allocation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/sensitivity": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Run Sensitivity Analysis",
+        "operationId": "run_sensitivity_analysis_api_v1_analysis_sensitivity_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensitivityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitivityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/explain": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Explain Analysis",
+        "operationId": "explain_analysis_api_v1_analysis_explain_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/receipts/": {
+      "post": {
+        "tags": [
+          "receipts"
+        ],
+        "summary": "Create Receipt",
+        "operationId": "create_receipt_api_v1_receipts__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceiptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CropProductionResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CropProductionResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "filters_applied": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Filters Applied"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "count",
+          "filters_applied",
+          "generated_at"
+        ],
+        "title": "CropProductionResponse"
+      },
+      "CropProductionResult": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "year": {
+            "type": "string",
+            "title": "Year"
+          },
+          "area": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "area_unit": {
+            "type": "string",
+            "title": "Area Unit",
+            "default": "hectares"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production"
+          },
+          "production_unit": {
+            "type": "string",
+            "title": "Production Unit",
+            "default": "tonnes"
+          },
+          "yield_": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield"
+          },
+          "yield_unit": {
+            "type": "string",
+            "title": "Yield Unit",
+            "default": "tonnes/hectare"
+          },
+          "data_source": {
+            "type": "string",
+            "title": "Data Source"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "crop",
+          "year",
+          "data_source",
+          "provenance",
+          "limitations"
+        ],
+        "title": "CropProductionResult"
+      },
+      "CropShiftRequest": {
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "baseline_crop": {
+            "type": "string",
+            "title": "Baseline Crop"
+          },
+          "alternative_crop": {
+            "type": "string",
+            "title": "Alternative Crop"
+          },
+          "area_hectares": {
+            "type": "number",
+            "title": "Area Hectares"
+          },
+          "reference_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Year"
+          },
+          "include_suitability": {
+            "type": "boolean",
+            "title": "Include Suitability",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "region",
+          "baseline_crop",
+          "alternative_crop",
+          "area_hectares"
+        ],
+        "title": "CropShiftRequest"
+      },
+      "CropShiftResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/CropShiftResult"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "generated_at"
+        ],
+        "title": "CropShiftResponse"
+      },
+      "CropShiftResult": {
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "baseline_crop": {
+            "type": "string",
+            "title": "Baseline Crop"
+          },
+          "alternative_crop": {
+            "type": "string",
+            "title": "Alternative Crop"
+          },
+          "area_hectares": {
+            "type": "number",
+            "title": "Area Hectares"
+          },
+          "reference_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Year"
+          },
+          "baseline_yield": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Yield"
+          },
+          "alternative_yield": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alternative Yield"
+          },
+          "yield_unit": {
+            "type": "string",
+            "title": "Yield Unit",
+            "default": "tonnes/hectare"
+          },
+          "baseline_blue_water_coefficient": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Blue Water Coefficient"
+          },
+          "alternative_blue_water_coefficient": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alternative Blue Water Coefficient"
+          },
+          "coefficient_unit": {
+            "type": "string",
+            "title": "Coefficient Unit",
+            "default": "m\u00b3/tonne"
+          },
+          "baseline_demand": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Demand"
+          },
+          "alternative_demand": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alternative Demand"
+          },
+          "absolute_difference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Absolute Difference"
+          },
+          "percentage_difference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentage Difference"
+          },
+          "difference_unit": {
+            "type": "string",
+            "title": "Difference Unit",
+            "default": "m\u00b3"
+          },
+          "calculation_methodology": {
+            "type": "string",
+            "title": "Calculation Methodology"
+          },
+          "data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "agronomic_suitability": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Agronomic Suitability"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region",
+          "baseline_crop",
+          "alternative_crop",
+          "area_hectares",
+          "reference_year",
+          "calculation_methodology",
+          "data_sources",
+          "provenance",
+          "agronomic_suitability",
+          "assumptions",
+          "limitations"
+        ],
+        "title": "CropShiftResult"
+      },
+      "DataStatusResponse": {
+        "properties": {
+          "overall_status": {
+            "type": "string",
+            "title": "Overall Status"
+          },
+          "datasets": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Datasets"
+          },
+          "missing_requirements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Requirements"
+          },
+          "unsupported_calculations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unsupported Calculations"
+          },
+          "join_coverage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Join Coverage"
+          },
+          "last_updated": {
+            "type": "string",
+            "title": "Last Updated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_status",
+          "datasets",
+          "missing_requirements",
+          "unsupported_calculations",
+          "join_coverage",
+          "last_updated"
+        ],
+        "title": "DataStatusResponse"
+      },
+      "DatasetInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "geographic_coverage": {
+            "type": "string",
+            "title": "Geographic Coverage"
+          },
+          "units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Units"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "source",
+          "period",
+          "geographic_coverage",
+          "units",
+          "columns",
+          "available"
+        ],
+        "title": "DatasetInfo"
+      },
+      "ExplainRequest": {
+        "properties": {
+          "analysis_type": {
+            "type": "string",
+            "title": "Analysis Type"
+          },
+          "analysis_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Id"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "analysis_type",
+          "parameters"
+        ],
+        "title": "ExplainRequest"
+      },
+      "ExplainResponse": {
+        "properties": {
+          "explanation": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Explanation"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "explanation",
+          "generated_at"
+        ],
+        "title": "ExplainResponse"
+      },
+      "ExportFootprintResult": {
+        "properties": {
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "financial_year": {
+            "type": "string",
+            "title": "Financial Year"
+          },
+          "export_quantity": {
+            "type": "number",
+            "title": "Export Quantity"
+          },
+          "export_quantity_unit": {
+            "type": "string",
+            "title": "Export Quantity Unit"
+          },
+          "green_water_coefficient": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Green Water Coefficient"
+          },
+          "blue_water_coefficient": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blue Water Coefficient"
+          },
+          "grey_water_coefficient": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grey Water Coefficient"
+          },
+          "coefficient_unit": {
+            "type": "string",
+            "title": "Coefficient Unit"
+          },
+          "estimated_green_water": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Green Water"
+          },
+          "estimated_blue_water": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Blue Water"
+          },
+          "estimated_grey_water": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Grey Water"
+          },
+          "total_water_footprint": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Water Footprint"
+          },
+          "footprint_unit": {
+            "type": "string",
+            "title": "Footprint Unit"
+          },
+          "calculation_methodology": {
+            "type": "string",
+            "title": "Calculation Methodology"
+          },
+          "data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warning"
+          }
+        },
+        "type": "object",
+        "required": [
+          "crop",
+          "financial_year",
+          "export_quantity",
+          "export_quantity_unit",
+          "coefficient_unit",
+          "footprint_unit",
+          "calculation_methodology",
+          "data_sources",
+          "provenance",
+          "limitations"
+        ],
+        "title": "ExportFootprintResult"
+      },
+      "ExportLedgerResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ExportFootprintResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "filters_applied": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Filters Applied"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "count",
+          "filters_applied",
+          "generated_at"
+        ],
+        "title": "ExportLedgerResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "service"
+        ],
+        "title": "HealthResponse"
+      },
+      "MetadataResponse": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "datasets": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetInfo"
+            },
+            "type": "array",
+            "title": "Datasets"
+          },
+          "supported_crops": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Crops"
+          },
+          "supported_regions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Regions"
+          },
+          "supported_analysis_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Analysis Types"
+          },
+          "units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Units"
+          },
+          "methodology_info": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Methodology Info"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "description",
+          "datasets",
+          "supported_crops",
+          "supported_regions",
+          "supported_analysis_types",
+          "units",
+          "methodology_info"
+        ],
+        "title": "MetadataResponse"
+      },
+      "OptimizationRequest": {
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "objective": {
+            "type": "string",
+            "title": "Objective",
+            "default": "minimize_blue_water"
+          },
+          "time_period": {
+            "type": "string",
+            "title": "Time Period",
+            "default": "2020-21"
+          },
+          "constraints": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Constraints"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region"
+        ],
+        "title": "OptimizationRequest"
+      },
+      "OptimizationResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/OptimizationResult"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "generated_at"
+        ],
+        "title": "OptimizationResponse"
+      },
+      "OptimizationResult": {
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "objective": {
+            "type": "string",
+            "title": "Objective"
+          },
+          "time_period": {
+            "type": "string",
+            "title": "Time Period"
+          },
+          "baseline_allocation": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Baseline Allocation"
+          },
+          "optimized_allocation": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Optimized Allocation"
+          },
+          "baseline_blue_water_demand": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Blue Water Demand"
+          },
+          "optimized_blue_water_demand": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optimized Blue Water Demand"
+          },
+          "water_demand_difference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Demand Difference"
+          },
+          "water_demand_difference_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Demand Difference Percent"
+          },
+          "baseline_production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Production"
+          },
+          "optimized_production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optimized Production"
+          },
+          "production_difference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Difference"
+          },
+          "production_difference_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Difference Percent"
+          },
+          "solver_used": {
+            "type": "string",
+            "title": "Solver Used"
+          },
+          "solver_status": {
+            "type": "string",
+            "title": "Solver Status"
+          },
+          "feasibility_status": {
+            "type": "string",
+            "title": "Feasibility Status"
+          },
+          "calculation_methodology": {
+            "type": "string",
+            "title": "Calculation Methodology"
+          },
+          "data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region",
+          "objective",
+          "time_period",
+          "baseline_allocation",
+          "optimized_allocation",
+          "solver_used",
+          "solver_status",
+          "feasibility_status",
+          "calculation_methodology",
+          "data_sources",
+          "provenance",
+          "assumptions",
+          "limitations"
+        ],
+        "title": "OptimizationResult"
+      },
+      "ReceiptRequest": {
+        "properties": {
+          "analysis_type": {
+            "type": "string",
+            "title": "Analysis Type"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "result_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "analysis_type",
+          "parameters",
+          "result_data"
+        ],
+        "title": "ReceiptRequest"
+      },
+      "ReceiptResponse": {
+        "properties": {
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "analysis_type": {
+            "type": "string",
+            "title": "Analysis Type"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "result_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result Data"
+          },
+          "calculation_methodology": {
+            "type": "string",
+            "title": "Calculation Methodology"
+          },
+          "data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "provenance": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Provenance"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "methodology_version": {
+            "type": "string",
+            "title": "Methodology Version"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "receipt_id",
+          "timestamp",
+          "analysis_type",
+          "parameters",
+          "result_data",
+          "calculation_methodology",
+          "data_sources",
+          "provenance",
+          "assumptions",
+          "limitations",
+          "methodology_version",
+          "generated_at"
+        ],
+        "title": "ReceiptResponse"
+      },
+      "SensitivityRequest": {
+        "properties": {
+          "analysis_type": {
+            "type": "string",
+            "title": "Analysis Type"
+          },
+          "parameter_to_vary": {
+            "type": "string",
+            "title": "Parameter To Vary"
+          },
+          "baseline_value": {
+            "type": "number",
+            "title": "Baseline Value"
+          },
+          "variation_percent": {
+            "type": "number",
+            "title": "Variation Percent",
+            "default": 10.0
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "required": [
+          "analysis_type",
+          "parameter_to_vary",
+          "baseline_value"
+        ],
+        "title": "SensitivityRequest"
+      },
+      "SensitivityResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/SensitivityResult"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "generated_at"
+        ],
+        "title": "SensitivityResponse"
+      },
+      "SensitivityResult": {
+        "properties": {
+          "parameter_name": {
+            "type": "string",
+            "title": "Parameter Name"
+          },
+          "baseline_value": {
+            "type": "number",
+            "title": "Baseline Value"
+          },
+          "variation_percent": {
+            "type": "number",
+            "title": "Variation Percent"
+          },
+          "results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "analysis_type": {
+            "type": "string",
+            "title": "Analysis Type"
+          },
+          "methodology": {
+            "type": "string",
+            "title": "Methodology"
+          }
+        },
+        "type": "object",
+        "required": [
+          "parameter_name",
+          "baseline_value",
+          "variation_percent",
+          "results",
+          "analysis_type",
+          "methodology"
+        ],
+        "title": "SensitivityResult"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
