@@ -1,0 +1,3 @@
+crop_or_product,green_water,blue_water,grey_water,coefficient_unit,geographic_scope,reference_period,source_publication,methodology
+rice,1500,800,300,m3/tonne,Global Average,2000,M&H,Calculated
+wheat,1200,600,200,m3/tonne,Global Average,2000,M&H,Calculated

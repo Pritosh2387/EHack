@@ -1,0 +1,3 @@
+hs_code,commodity_description,original_quantity,original_quantity_unit,normalized_quantity_tonnes,financial_year,export_value,currency,source_reference
+1006,rice,5000,tonnes,5000,2020-21,1000,USD,SourceA
+1001,wheat,3000,tonnes,3000,2020-21,900,USD,SourceA
