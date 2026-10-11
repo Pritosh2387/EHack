@@ -36,12 +36,15 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   let colorClasses = 'bg-slate-100 text-slate-700 border-slate-200';
   let dotColor = 'bg-slate-400';
 
-  if (norm === 'healthy' || norm === 'operational' || norm === 'available' || norm === 'safe' || norm === 'feasible') {
+  if (norm === 'healthy' || norm === 'operational' || norm === 'ready' || norm === 'available' || norm === 'safe' || norm === 'feasible') {
     colorClasses = 'bg-emerald-50 text-emerald-800 border-emerald-200';
     dotColor = 'bg-emerald-500';
-  } else if (norm === 'partially-available' || norm === 'semi-critical' || norm === 'warning') {
+  } else if (norm === 'partial' || norm === 'partially-available' || norm === 'semi-critical' || norm === 'warning') {
     colorClasses = 'bg-amber-50 text-amber-800 border-amber-200';
     dotColor = 'bg-amber-500';
+  } else if (norm === 'loading') {
+    colorClasses = 'bg-blue-50 text-blue-800 border-blue-200';
+    dotColor = 'bg-blue-500 animate-pulse';
   } else if (norm === 'critical') {
     colorClasses = 'bg-orange-50 text-orange-800 border-orange-200';
     dotColor = 'bg-orange-500';

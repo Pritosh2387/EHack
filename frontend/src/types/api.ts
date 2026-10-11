@@ -36,10 +36,17 @@ export interface DataStatusDataset {
   available: boolean;
   description: string;
   source: string;
+  row_count?: number;
+  errors?: string[];
+  period?: string;
+  geographic_coverage?: string;
+  coverage_notes?: string;
 }
 
+export type DataStatusOverallState = 'ready' | 'partial' | 'unavailable' | 'available' | 'partially_available';
+
 export interface DataStatusResponse {
-  overall_status: 'available' | 'partially_available' | 'unavailable';
+  overall_status: DataStatusOverallState;
   datasets: DataStatusDataset[];
   missing_requirements: string[];
   unsupported_calculations: string[];

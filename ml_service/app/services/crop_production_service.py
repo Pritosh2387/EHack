@@ -39,12 +39,12 @@ class CropProductionService:
             is_inferred = abs(row['yield'] - calc_yield) > 0.1
             result = CropProductionResult(
                 state=row['state'],
-                district=row['district'],
+                district=str(row['district']) if pd.notna(row['district']) and row['district'] is not None else None,
                 crop=row['crop'],
                 year=str(row['year']),
-                area=float(row['area']),
-                production=float(row['production']),
-                yield_=float(row['yield']),
+                area=float(row['area']) if pd.notna(row['area']) else None,
+                production=float(row['production']) if pd.notna(row['production']) else None,
+                yield_=float(row['yield']) if pd.notna(row['yield']) else None,
                 data_source="Ministry of Agriculture and Farmers Welfare, Government of India",
                 provenance={
                     "area_data": "OBSERVED",

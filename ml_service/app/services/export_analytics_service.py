@@ -25,9 +25,10 @@ class ExportAnalyticsService:
             raise ValueError(f"Unsupported crop: {request.crop}")
 
         # Filter export data
-        export_filtered = self.export_data[
-            (self.export_data['commodity_description'].str.lower() == request.crop.lower())
-        ]
+        crop_req = request.crop.lower()
+        exact_match = self.export_data['commodity_description'].str.lower() == crop_req
+        substr_match = self.export_data['commodity_description'].str.lower().str.contains(crop_req, regex=False)
+        export_filtered = self.export_data[exact_match | substr_match]
 
         if request.financial_year:
             export_filtered = export_filtered[
@@ -38,19 +39,21 @@ class ExportAnalyticsService:
             raise ValueError(f"No export data found for crop: {request.crop}" +
                            (f" in year: {request.financial_year}" if request.financial_year else ""))
 
-        # Get water footprint coefficients
-        wf_data = self.water_footprint_data[
-            self.water_footprint_data['crop_or_product'].str.lower() == request.crop.lower()
-        ]
-
-        if wf_data.empty:
-            raise ValueError(f"No water footprint data found for crop: {request.crop}")
-
-        wf_row = wf_data.iloc[0]
-
         # Calculate results for each export record
         results = []
         for _, export_row in export_filtered.iterrows():
+            comm_name = str(export_row['commodity_description']).lower()
+            wf_data = self.water_footprint_data[
+                self.water_footprint_data['crop_or_product'].str.lower() == comm_name
+            ]
+            if wf_data.empty:
+                wf_data = self.water_footprint_data[
+                    self.water_footprint_data['crop_or_product'].str.lower() == crop_req
+                ]
+            if wf_data.empty:
+                raise ValueError(f"No water footprint data found for crop: {comm_name}")
+
+            wf_row = wf_data.iloc[0]
             export_data_provenance = export_row.get('source_reference', 'OBSERVED')
             water_coeff_provenance = wf_row.get('source_publication', 'PUBLISHED_REAL_ARTICLE_SOURCED')
             

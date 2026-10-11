@@ -5,11 +5,32 @@ from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 import warnings
 
+def resolve_data_dir(data_dir: Optional[str] = None) -> str:
+    if data_dir:
+        abs_p = os.path.abspath(data_dir)
+        if os.path.exists(abs_p):
+            return abs_p
+        return data_dir
+
+    env_dir = os.getenv("DATA_PATH")
+    if env_dir and os.path.exists(os.path.abspath(env_dir)):
+        return os.path.abspath(env_dir)
+
+    module_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+    if os.path.exists(module_data_dir):
+        return module_data_dir
+
+    if os.path.exists("ml_service/data"):
+        return os.path.abspath("ml_service/data")
+
+    return module_data_dir
+
+
 class DataLoader:
     """Handles loading and validation of datasets for Water Shadow services."""
 
-    def __init__(self, data_dir: str = "ml_service/data"):
-        self.data_dir = data_dir
+    def __init__(self, data_dir: Optional[str] = None):
+        self.data_dir = resolve_data_dir(data_dir)
         self.supported_crops = [
             "rice", "wheat", "sugarcane", "cotton", "soybean",
             "groundnut", "sunflower", "sesame", "mustard", "maize"
@@ -30,15 +51,17 @@ class DataLoader:
         
         if os.path.exists(csv_path):
             try:
-                return pd.read_csv(csv_path), []
+                df = pd.read_csv(csv_path)
+                return df, []
             except Exception as e:
                 return None, [f"Error reading CSV {base_name}.csv: {str(e)}"]
         elif os.path.exists(excel_path):
             try:
-                return pd.read_excel(excel_path), []
+                df = pd.read_excel(excel_path)
+                return df, []
             except Exception as e:
                 return None, [f"Error reading Excel {base_name}.xlsx: {str(e)}"]
-        return None, [f"File not found: {base_name}.csv or {base_name}.xlsx"]
+        return None, [f"File not found: {base_name}.csv or {base_name}.xlsx at {os.path.abspath(self.data_dir)}"]
 
     def load_agricultural_exports(self) -> Tuple[pd.DataFrame, bool, List[str]]:
         df, errors = self._read_file("agricultural_exports")
@@ -51,10 +74,12 @@ class DataLoader:
             "financial_year", "export_value", "currency", "source_reference"
         ]
         
-        # Check if at least the core columns are present, hs_code might be optional but let's make it expected
-        missing = [c for c in required_columns if c not in df.columns and c != "hs_code"]
+        missing = [c for c in required_columns if c not in df.columns]
         if missing:
             return pd.DataFrame(), False, [f"Missing columns: {missing}"]
+
+        if df.empty:
+            return pd.DataFrame(), False, ["Dataset is empty (0 rows)"]
 
         if "financial_year" in df.columns:
             invalid_years = df[~df["financial_year"].astype(str).str.match(r'^\d{4}-\d{2}$')]
@@ -65,14 +90,12 @@ class DataLoader:
             if col in df.columns and (pd.to_numeric(df[col], errors='coerce') < 0).any():
                 errors.append(f"Column '{col}' has negative values")
                 
-        # Fill/drop missing as appropriate
         if errors:
             return pd.DataFrame(), False, errors
         return df, True, []
 
     def load_crop_water_footprint(self) -> Tuple[pd.DataFrame, bool, List[str]]:
         df, errors = self._read_file("crop_water_footprint")
-        
         if df is None:
             return pd.DataFrame(), False, errors
 
@@ -84,6 +107,9 @@ class DataLoader:
         missing = [c for c in required_columns if c not in df.columns]
         if missing:
             return pd.DataFrame(), False, [f"Missing columns: {missing}"]
+
+        if df.empty:
+            return pd.DataFrame(), False, ["Dataset is empty (0 rows)"]
 
         for col in ["green_water", "blue_water", "grey_water"]:
             if col in df.columns:
@@ -101,16 +127,20 @@ class DataLoader:
         if df is None:
             return pd.DataFrame(), False, errors
 
-        required_columns = ["state", "crop", "year", "area", "production", "yield"]
-        missing = [c for c in required_columns if c not in df.columns]
+        required_columns = ["state", "district", "crop", "year", "area", "production", "yield"]
+        missing = [c for c in required_columns if c not in df.columns and c != "district"]
         if missing:
             return pd.DataFrame(), False, [f"Missing columns: {missing}"]
 
         if "district" not in df.columns:
             df["district"] = None
+        else:
+            df["district"] = df["district"].where(pd.notna(df["district"]), None)
+
+        if df.empty:
+            return pd.DataFrame(), False, ["Dataset is empty (0 rows)"]
 
         if "year" in df.columns:
-            # allow YYYY-YY or YYYY
             year_str = df["year"].astype(str)
             invalid_years = year_str[~year_str.str.match(r'^(\d{4}-\d{2}|\d{4})$')]
             if not invalid_years.empty:
@@ -150,6 +180,19 @@ class DataLoader:
         if missing:
             return pd.DataFrame(), False, [f"Missing columns: {missing}"]
 
+        if "latitude" not in df.columns:
+            df["latitude"] = None
+        else:
+            df["latitude"] = df["latitude"].where(pd.notna(df["latitude"]), None)
+
+        if "longitude" not in df.columns:
+            df["longitude"] = None
+        else:
+            df["longitude"] = df["longitude"].where(pd.notna(df["longitude"]), None)
+
+        if df.empty:
+            return pd.DataFrame(), False, ["Dataset is empty (0 rows)"]
+
         if "category" in df.columns:
             invalid_categories = df[~df["category"].isin(self.groundwater_categories)]["category"].unique()
             if len(invalid_categories) > 0:
@@ -169,6 +212,60 @@ class DataLoader:
         if errors:
             return pd.DataFrame(), False, errors
         return df, True, []
+
+    def get_all_datasets_status(self) -> Dict[str, Dict[str, Any]]:
+        metadata_map = {
+            "agricultural_exports": {
+                "description": "India's agricultural export statistics",
+                "source": "Ministry of Commerce and Industry, TradeStat / APEDA Annual Administrative Report 2024-25",
+                "period": "2024-25",
+                "geographic_coverage": "National (India - APEDA product aggregates)",
+                "coverage_notes": "Starter pack subset (3 commodity categories: Non-Basmati Rice, Basmati Rice, Wheat for FY 2024-25; product aggregates, not destination-level census).",
+                "loader": self.load_agricultural_exports,
+            },
+            "crop_water_footprint": {
+                "description": "Crop water footprint coefficients (green, blue, grey)",
+                "source": "Mekonnen and Hoekstra (2011), Water Footprint Network",
+                "period": "1996-2005",
+                "geographic_coverage": "Global estimate",
+                "coverage_notes": "Global average estimates (Table 3); rice sub-categories map to paddy proxy. Indicative baseline coefficients.",
+                "loader": self.load_crop_water_footprint,
+            },
+            "crop_production": {
+                "description": "Regional crop production statistics",
+                "source": "Ministry of Agriculture and Farmers Welfare, DES Agricultural Statistics at a Glance 2024-25",
+                "period": "2023-24 to 2024-25",
+                "geographic_coverage": "State-level (India - 10 major producing states)",
+                "coverage_notes": "Subset of major producing states for rice and wheat (state-level totals; district omitted in source tables; 40 rows).",
+                "loader": self.load_crop_production,
+            },
+            "groundwater_assessment": {
+                "description": "Groundwater assessment units and classifications",
+                "source": "Central Ground Water Board (CGWB), Government of India",
+                "period": "2022",
+                "geographic_coverage": "Punjab (Ludhiana district - 5 assessment units)",
+                "coverage_notes": "Limited sample of 5 Over-Exploited units in Ludhiana, Punjab (2022 report); not nationwide coverage.",
+                "loader": self.load_groundwater_assessment,
+            }
+        }
+
+        results = {}
+        for name, meta in metadata_map.items():
+            df, success, errors = meta["loader"]()
+            results[name] = {
+                "name": name,
+                "description": meta["description"],
+                "source": meta["source"],
+                "period": meta["period"],
+                "geographic_coverage": meta["geographic_coverage"],
+                "coverage_notes": meta["coverage_notes"],
+                "available": bool(success),
+                "row_count": len(df) if success else 0,
+                "errors": errors,
+                "columns": df.columns.tolist() if not df.empty else []
+            }
+        return results
+
 
     # sample dataset getters ...
     def get_sample_agricultural_exports(self) -> pd.DataFrame:

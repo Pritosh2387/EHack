@@ -2,8 +2,14 @@ import React from 'react';
 import type { DatasetInfo } from '../../types/api';
 import { StatusBadge } from '../feedback/StatusBadge';
 
+export interface DatasetTableItem extends DatasetInfo {
+  row_count?: number;
+  errors?: string[];
+  coverage_notes?: string;
+}
+
 interface DatasetTableProps {
-  datasets: DatasetInfo[];
+  datasets: DatasetTableItem[];
   isLoading?: boolean;
 }
 
@@ -21,6 +27,7 @@ export const DatasetTable: React.FC<DatasetTableProps> = ({ datasets, isLoading 
             <th className="px-4 py-3 text-left">Source Agency</th>
             <th className="px-4 py-3 text-left">Period</th>
             <th className="px-4 py-3 text-left">Coverage</th>
+            <th className="px-4 py-3 text-left">Records</th>
             <th className="px-4 py-3 text-center">Status</th>
             <th className="px-4 py-3 text-left">Standard Units</th>
           </tr>
@@ -35,9 +42,18 @@ export const DatasetTable: React.FC<DatasetTableProps> = ({ datasets, isLoading 
               <td className="px-4 py-3.5 text-[#17211B]">{d.source}</td>
               <td className="px-4 py-3.5 text-[#66736A]">{d.period}</td>
               <td className="px-4 py-3.5 text-[#66736A]">{d.geographic_coverage}</td>
+              <td className="px-4 py-3.5 text-[#17211B] font-mono">
+                {d.available && d.row_count !== undefined && d.row_count !== null ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold">
+                    {d.row_count} {d.row_count === 1 ? 'row' : 'rows'}
+                  </span>
+                ) : (
+                  <span className="text-stone-400">—</span>
+                )}
+              </td>
               <td className="px-4 py-3.5 text-center">
                 <StatusBadge
-                  status={d.available ? 'available' : 'unavailable'}
+                  status={d.available ? 'ready' : 'unavailable'}
                   label={d.available ? 'Ready' : 'Pending'}
                 />
               </td>

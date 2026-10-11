@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchHealth } from '../api/health';
 import { fetchMetadata } from '../api/metadata';
-import { fetchDataStatus } from '../api/dataStatus';
+import { useDataStatus, isDatasetReady, isDatasetPartial } from '../hooks/useDataStatus';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MetricCard } from '../components/feedback/MetricCard';
@@ -35,13 +35,10 @@ export const DashboardPage: React.FC = () => {
     queryFn: fetchMetadata,
   });
 
-  const { data: dataStatus, isLoading: isStatusLoading, isError: isStatusError, refetch: refetchStatus } = useQuery({
-    queryKey: ['data-status'],
-    queryFn: fetchDataStatus,
-  });
+  const { data: dataStatus, isLoading: isStatusLoading, isError: isStatusError, refetch: refetchStatus } = useDataStatus();
 
-  const isDataAvailable = dataStatus?.overall_status === 'available';
-  const hasPartialData = dataStatus?.overall_status === 'partially_available';
+  const isDataAvailable = isDatasetReady(dataStatus?.overall_status);
+  const hasPartialData = isDatasetPartial(dataStatus?.overall_status);
 
   return (
     <AppShell pageTitle="Dashboard">
@@ -56,11 +53,11 @@ export const DashboardPage: React.FC = () => {
             />
             {dataStatus && (
               <StatusBadge
-                status={dataStatus.overall_status}
+                status={isDataAvailable ? 'ready' : hasPartialData ? 'partial' : 'unavailable'}
                 label={
-                  dataStatus.overall_status === 'available'
-                    ? 'Datasets Loaded'
-                    : dataStatus.overall_status === 'partially_available'
+                  isDataAvailable
+                    ? 'Starter Datasets Loaded'
+                    : hasPartialData
                     ? 'Partially Ready'
                     : 'Source Data Not Loaded'
                 }
@@ -82,22 +79,22 @@ export const DashboardPage: React.FC = () => {
               }`}
             >
               {isDataAvailable ? (
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
               ) : (
-                <AlertTriangle className="w-5 h-5" />
+                <AlertTriangle className="w-5 h-5 text-amber-700" />
               )}
             </div>
             <div>
               <h3 className="text-sm font-bold text-[#17211B]">
                 {isDataAvailable
-                  ? 'All Agricultural & Hydrogeological Datasets Loaded'
+                  ? 'Starter Agricultural & Hydrogeological Datasets Loaded'
                   : hasPartialData
                   ? 'Partial Datasets Loaded into Analytics Service'
                   : 'Dataset Ingestion Status: Awaiting Raw Source Data Files'}
               </h3>
               <p className="text-xs text-[#66736A] mt-1 max-w-3xl leading-relaxed">
                 {isDataAvailable
-                  ? 'Real data from TradeStat, CGWB, and MoAFW are active. All analytical calculators and optimizers are ready for scenario execution.'
+                  ? 'Real verified starter records from TradeStat/APEDA, CGWB, and MoAFW DES are active in the analytics engine. All analytical calculators and optimizers are ready for scenario execution. Note that current coverage represents the starter data pack rather than a complete national census.'
                   : 'The FastAPI analytics engine is running, but real datasets (.csv or .xlsx) have not yet been placed in ml_service/data. To ensure scientific integrity, the platform will never fabricate placeholder figures. Refer to Data & Methodology for details.'}
               </p>
             </div>
@@ -283,11 +280,18 @@ export const DashboardPage: React.FC = () => {
                     <span className="text-xs font-bold text-[#17211B] capitalize">
                       {ds.name.replace(/_/g, ' ')}
                     </span>
-                    <StatusBadge
-                      status={ds.available ? 'available' : 'unavailable'}
-                      label={ds.available ? 'Ready' : 'Pending'}
-                      size="sm"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      {ds.available && ds.row_count !== undefined && ds.row_count !== null && (
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                          {ds.row_count} rows
+                        </span>
+                      )}
+                      <StatusBadge
+                        status={ds.available ? 'ready' : 'unavailable'}
+                        label={ds.available ? 'Ready' : 'Pending'}
+                        size="sm"
+                      />
+                    </div>
                   </div>
                   <p className="text-[11px] text-[#66736A] line-clamp-2">{ds.description}</p>
                 </div>

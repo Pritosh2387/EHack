@@ -12,6 +12,9 @@ interface DatasetStatusCardProps {
   units?: Record<string, string>;
   columns?: string[];
   limitations?: string[];
+  rowCount?: number;
+  errors?: string[];
+  coverageNotes?: string;
   className?: string;
 }
 
@@ -25,6 +28,9 @@ export const DatasetStatusCard: React.FC<DatasetStatusCardProps> = ({
   units,
   columns,
   limitations,
+  rowCount,
+  errors,
+  coverageNotes,
   className = '',
 }) => {
   const formattedName = name.replace(/_/g, ' ');
@@ -49,15 +55,22 @@ export const DatasetStatusCard: React.FC<DatasetStatusCardProps> = ({
             {source && <p className="text-xs text-[#66736A]">{source}</p>}
           </div>
         </div>
-        <StatusBadge
-          status={available ? 'available' : 'unavailable'}
-          label={available ? 'Loaded' : 'Pending File'}
-        />
+        <div className="flex items-center gap-2">
+          {available && rowCount !== undefined && rowCount !== null && (
+            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              {rowCount} {rowCount === 1 ? 'row' : 'rows'}
+            </span>
+          )}
+          <StatusBadge
+            status={available ? 'ready' : 'unavailable'}
+            label={available ? 'Loaded' : 'Pending File'}
+          />
+        </div>
       </div>
 
       {description && <p className="text-xs text-[#66736A] mb-3">{description}</p>}
 
-      <div className="grid grid-cols-2 gap-2 text-xs py-2 border-t border-slate-100">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs py-2 border-t border-slate-100">
         <div>
           <span className="text-[#66736A] block">Period:</span>
           <span className="font-medium text-[#17211B]">{period || 'Historical / Periodic'}</span>
@@ -66,7 +79,33 @@ export const DatasetStatusCard: React.FC<DatasetStatusCardProps> = ({
           <span className="text-[#66736A] block">Scope:</span>
           <span className="font-medium text-[#17211B]">{geographicScope || 'National (India)'}</span>
         </div>
+        <div>
+          <span className="text-[#66736A] block">Records:</span>
+          <span className="font-medium text-[#17211B] font-mono">
+            {available && rowCount !== undefined && rowCount !== null
+              ? `${rowCount} loaded`
+              : 'Pending ingestion'}
+          </span>
+        </div>
       </div>
+
+      {coverageNotes && (
+        <div className="mt-2 pt-2 border-t border-slate-100 text-xs">
+          <span className="text-[#66736A] block mb-0.5 font-semibold">Coverage Scope:</span>
+          <p className="text-[11px] text-stone-600 leading-relaxed">{coverageNotes}</p>
+        </div>
+      )}
+
+      {errors && errors.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-red-100 text-xs text-red-800 bg-red-50/60 p-2.5 rounded-lg border">
+          <span className="font-semibold block mb-0.5">Validation Errors:</span>
+          <ul className="list-disc list-inside space-y-0.5">
+            {errors.map((err, idx) => (
+              <li key={idx} className="text-[11px] leading-relaxed">{err}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {units && Object.keys(units).length > 0 && (
         <div className="mt-2 pt-2 border-t border-slate-100 text-xs">

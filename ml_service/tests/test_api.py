@@ -25,6 +25,11 @@ def set_test_data_dir():
     yield
     
     data_loader.data_dir = original_dir
+    crop_production_service.__init__()
+    groundwater_service.__init__()
+    export_service.__init__()
+    crop_shift_service.__init__()
+    optimizer_service.__init__()
 
 def test_health_endpoint():
     response = client.get("/health")

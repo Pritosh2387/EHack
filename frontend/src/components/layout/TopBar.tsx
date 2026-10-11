@@ -3,7 +3,7 @@ import { Menu, Activity, Database } from 'lucide-react';
 import { StatusBadge } from '../feedback/StatusBadge';
 import { useQuery } from '@tanstack/react-query';
 import { fetchHealth } from '../../api/health';
-import { fetchDataStatus } from '../../api/dataStatus';
+import { useDataStatus, isDatasetReady, isDatasetPartial } from '../../hooks/useDataStatus';
 
 interface TopBarProps {
   onOpenSidebar: () => void;
@@ -18,15 +18,26 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenSidebar, pageTitle }) => {
     retry: 1,
   });
 
-  const { data: dataStatus } = useQuery({
-    queryKey: ['data-status'],
-    queryFn: fetchDataStatus,
-    refetchInterval: 60000,
-    retry: 1,
-  });
+  const { data: dataStatus, isLoading: isStatusLoading, isError: isStatusError } = useDataStatus();
 
   const isHealthy = !isHealthError && health?.status === 'healthy';
-  const overallDataStatus = dataStatus?.overall_status || 'unavailable';
+
+  let datasetBadgeStatus = 'unavailable';
+  let datasetBadgeLabel = 'Awaiting Ingestion';
+
+  if (isStatusLoading) {
+    datasetBadgeStatus = 'loading';
+    datasetBadgeLabel = 'Checking...';
+  } else if (isStatusError) {
+    datasetBadgeStatus = 'unavailable';
+    datasetBadgeLabel = 'Connection Error';
+  } else if (isDatasetReady(dataStatus?.overall_status)) {
+    datasetBadgeStatus = 'ready';
+    datasetBadgeLabel = 'Starter Datasets Loaded';
+  } else if (isDatasetPartial(dataStatus?.overall_status)) {
+    datasetBadgeStatus = 'partial';
+    datasetBadgeLabel = 'Partially Loaded';
+  }
 
   return (
     <header className="h-16 px-4 sm:px-6 bg-white border-b border-[#E1E8E1] flex items-center justify-between sticky top-0 z-30">
@@ -59,14 +70,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenSidebar, pageTitle }) => {
           <Database className="w-3.5 h-3.5 text-[#B45309]" />
           <span className="text-[#66736A] hidden md:inline">Datasets:</span>
           <StatusBadge
-            status={overallDataStatus}
-            label={
-              overallDataStatus === 'available'
-                ? 'All Ready'
-                : overallDataStatus === 'partially_available'
-                ? 'Partial'
-                : 'Pending'
-            }
+            status={datasetBadgeStatus}
+            label={datasetBadgeLabel}
             size="sm"
           />
         </div>
