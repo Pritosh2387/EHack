@@ -1,0 +1,47 @@
+# Git version control
+.git
+.gitignore
+.github
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local environment and secret files
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+
+# Frontend dependencies and build output
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/dist-ssr/
+
+# IDE and operating system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Documentation and logs
+*.log
+docker-compose*.override.yml
+
+# Explicitly ensure dataset CSV files are preserved and never ignored
+!ml_service/data/*.csv

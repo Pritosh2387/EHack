@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 import uvicorn
 from ml_service.app.api.routes import health, metadata, data_status, exports, regions, scenarios, optimization, analysis, receipts
 
@@ -9,10 +10,26 @@ app = FastAPI(
     version="0.1.0"
 )
 
+def get_allowed_origins() -> list[str]:
+    """Parse FRONTEND_ORIGINS environment variable for allowed CORS origins.
+    
+    If FRONTEND_ORIGINS is provided, parses explicit comma-separated browser origins.
+    Otherwise, defaults to safe local development origins. Never allows '*' in production.
+    """
+    raw_origins = os.getenv("FRONTEND_ORIGINS", "").strip()
+    if raw_origins:
+        return [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    return [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

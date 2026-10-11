@@ -4,8 +4,20 @@
  */
 
 
-const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-export const API_BASE_URL = RAW_BASE_URL.replace(/\/+$/, '');
+// Resolve API base URL:
+// - If VITE_API_BASE_URL is defined, use it (production App Runner service URL).
+// - In development mode without an explicit env variable, fall back to the local dev backend.
+// - In production builds without an env variable, default to empty string (same-origin relative URL),
+//   guaranteeing no localhost or 127.0.0.1 is hardcoded into the production bundle.
+// - Strip trailing slashes and normalize against an accidental trailing /api/v1 since routes append their own paths.
+const rawEnv = import.meta.env.VITE_API_BASE_URL;
+const RAW_BASE_URL = (rawEnv && rawEnv.trim())
+  ? rawEnv.trim()
+  : (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '');
+
+export const API_BASE_URL = RAW_BASE_URL
+  .replace(/\/+$/, '')
+  .replace(/\/api\/v1\/?$/, '');
 
 export class ApiClientError extends Error {
   status: number;

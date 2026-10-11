@@ -170,8 +170,8 @@ ehthumbs.db
 .DS_Store
 
 # Water Shadow Specific Exclusions
-# Ignore actual dataset files in the data directory but KEEP the README
-ml_service/data/*.csv
+# Dataset CSV files are tracked and required for deployment
+!ml_service/data/*.csv
 ml_service/data/*.xlsx
 
 # Note: We preserve gwra_2025.pdf and water_footprint_article.html as reference files,

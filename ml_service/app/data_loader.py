@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
@@ -6,24 +7,45 @@ from datetime import datetime
 import warnings
 
 def resolve_data_dir(data_dir: Optional[str] = None) -> str:
+    """Robustly resolve dataset directory on Linux and Windows regardless of working directory."""
     if data_dir:
-        abs_p = os.path.abspath(data_dir)
-        if os.path.exists(abs_p):
-            return abs_p
-        return data_dir
+        candidate = Path(data_dir)
+        if candidate.is_absolute() and candidate.exists():
+            return str(candidate.resolve())
+        # Check relative to cwd
+        abs_cwd = (Path.cwd() / candidate).resolve()
+        if abs_cwd.exists():
+            return str(abs_cwd)
+        # Check relative to repository root
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        abs_repo = (repo_root / candidate).resolve()
+        if abs_repo.exists():
+            return str(abs_repo)
+        return str(candidate.resolve()) if candidate.is_absolute() else str(candidate)
 
     env_dir = os.getenv("DATA_PATH")
-    if env_dir and os.path.exists(os.path.abspath(env_dir)):
-        return os.path.abspath(env_dir)
+    if env_dir:
+        env_candidate = Path(env_dir)
+        if env_candidate.is_absolute() and env_candidate.exists():
+            return str(env_candidate.resolve())
+        abs_cwd = (Path.cwd() / env_candidate).resolve()
+        if abs_cwd.exists():
+            return str(abs_cwd)
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        abs_repo = (repo_root / env_candidate).resolve()
+        if abs_repo.exists():
+            return str(abs_repo)
 
-    module_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
-    if os.path.exists(module_data_dir):
-        return module_data_dir
+    # Canonical location: ml_service/data next to ml_service/app
+    canonical_data_dir = (Path(__file__).resolve().parent.parent / "data").resolve()
+    if canonical_data_dir.exists():
+        return str(canonical_data_dir)
 
-    if os.path.exists("ml_service/data"):
-        return os.path.abspath("ml_service/data")
+    cwd_data_dir = (Path.cwd() / "ml_service" / "data").resolve()
+    if cwd_data_dir.exists():
+        return str(cwd_data_dir)
 
-    return module_data_dir
+    return str(canonical_data_dir)
 
 
 class DataLoader:

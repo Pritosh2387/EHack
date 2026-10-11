@@ -4,10 +4,12 @@ from ml_service.app.schemas.optimization import OptimizationRequest
 from ml_service.app.services.resource_optimizer_service import ResourceOptimizerService
 from ml_service.app.data_loader import data_loader
 
+FIXTURES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "fixtures"))
+
 @pytest.fixture(autouse=True)
 def set_test_data_dir():
     original_dir = data_loader.data_dir
-    data_loader.data_dir = r"C:\Users\Hp\OneDrive\Desktop\Hacathons\amazon\ml_service\tests\fixtures"
+    data_loader.data_dir = FIXTURES_DIR
     yield
     data_loader.data_dir = original_dir
 

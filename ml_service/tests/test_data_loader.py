@@ -3,9 +3,11 @@ import pytest
 import pandas as pd
 from ml_service.app.data_loader import DataLoader
 
+FIXTURES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "fixtures"))
+
 @pytest.fixture
 def test_loader():
-    return DataLoader(data_dir=r"C:\Users\Hp\OneDrive\Desktop\Hacathons\amazon\ml_service\tests\fixtures")
+    return DataLoader(data_dir=FIXTURES_DIR)
 
 def test_load_agricultural_exports(test_loader):
     df, success, errors = test_loader.load_agricultural_exports()

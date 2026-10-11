@@ -11,10 +11,12 @@ from ml_service.app.api.routes.optimization import optimizer_service
 
 client = TestClient(app)
 
+FIXTURES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "fixtures"))
+
 @pytest.fixture(autouse=True)
 def set_test_data_dir():
     original_dir = data_loader.data_dir
-    data_loader.data_dir = r"C:\Users\Hp\OneDrive\Desktop\Hacathons\amazon\ml_service\tests\fixtures"
+    data_loader.data_dir = FIXTURES_DIR
     
     crop_production_service.__init__()
     groundwater_service.__init__()
@@ -89,3 +91,16 @@ def test_regions_overview():
     assert "crop_production" in data
     assert "groundwater_assessment" in data
     assert len(data["groundwater_assessment"]["assessment_units"]) > 0
+
+def test_cors_frontend_origins_config(monkeypatch):
+    from ml_service.app.main import get_allowed_origins
+    # Explicit comma-separated origins
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://app.amplifyapp.com, https://watershadow.example.com")
+    origins = get_allowed_origins()
+    assert origins == ["https://app.amplifyapp.com", "https://watershadow.example.com"]
+
+    # Default fallback when not set
+    monkeypatch.delenv("FRONTEND_ORIGINS", raising=False)
+    default_origins = get_allowed_origins()
+    assert "*" not in default_origins
+    assert "http://localhost:5173" in default_origins
