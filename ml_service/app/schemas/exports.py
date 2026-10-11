@@ -12,6 +12,8 @@ class ExportFootprintResult(BaseModel):
     financial_year: str
     export_quantity: float
     export_quantity_unit: str
+    export_value: Optional[float] = None
+    export_value_currency: Optional[str] = None
     green_water_coefficient: Optional[float] = None
     blue_water_coefficient: Optional[float] = None
     grey_water_coefficient: Optional[float] = None
@@ -32,3 +34,12 @@ class ExportLedgerResponse(BaseModel):
     count: int
     filters_applied: dict
     generated_at: datetime
+    message: Optional[str] = None
+
+class ExportFiltersResponse(BaseModel):
+    financial_years: List[str]
+    commodities: List[str]
+    default_financial_year: Optional[str] = None
+    default_commodity: Optional[str] = None
+    available: bool = True
+    export_categories: List[str] = []

@@ -28,3 +28,18 @@ class CropProductionResponse(BaseModel):
     count: int
     filters_applied: dict
     generated_at: datetime
+
+class RegionalFiltersResponse(BaseModel):
+    production_states: List[str]
+    groundwater_states: List[str]
+    overlapping_states: List[str]
+    crop_years: List[str]
+    groundwater_years: List[str]
+    crops: List[str]
+    crops_by_state: dict = {}
+    districts_by_state: dict = {}
+    default_state: str = "Punjab"
+    default_crop: str = "rice"
+    default_crop_year: str = "2023-24"
+    default_groundwater_year: str = "2022"
+    available: bool = True

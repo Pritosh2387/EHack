@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchMetadata } from '../api/metadata';
 import {
   fetchCropProduction,
   fetchGroundwaterStress,
+  fetchRegionalFilters,
 } from '../api/regions';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -32,27 +32,36 @@ import type {
 } from '../types/api';
 
 export const RegionalExplorerPage: React.FC = () => {
-  const { data: metadata } = useQuery({
-    queryKey: ['metadata'],
-    queryFn: fetchMetadata,
+  const { data: filtersData } = useQuery({
+    queryKey: ['regional-filters'],
+    queryFn: fetchRegionalFilters,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const states = metadata?.supported_regions || ['Punjab', 'Haryana', 'Maharashtra', 'Rajasthan', 'Uttar Pradesh'];
-  const crops = metadata?.supported_crops || ['rice', 'wheat', 'sugarcane', 'cotton'];
+  const states = filtersData?.production_states?.length
+    ? filtersData.production_states
+    : ['Punjab', 'Uttar Pradesh', 'Madhya Pradesh', 'Haryana', 'Rajasthan', 'Bihar', 'West Bengal', 'Telangana', 'Andhra Pradesh', 'Tamil Nadu', 'Chhattisgarh', 'Odisha', 'Gujarat', 'Maharashtra', 'Uttarakhand', 'Himachal Pradesh'];
+  const gwStates = filtersData?.groundwater_states || ['Punjab'];
+  const cropYears = filtersData?.crop_years?.length ? filtersData.crop_years : ['2024-25', '2023-24'];
+  const groundwaterYears = filtersData?.groundwater_years?.length ? filtersData.groundwater_years : ['2022'];
 
   // Independent Filter state
   const [selectedState, setSelectedState] = useState<string>('Punjab');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
   const [selectedCrop, setSelectedCrop] = useState<string>('rice');
-  const [cropYear, setCropYear] = useState<string>('2020-21');
-  const [groundwaterYear, setGroundwaterYear] = useState<string>('2020');
+  const [cropYear, setCropYear] = useState<string>('2023-24');
+  const [groundwaterYear, setGroundwaterYear] = useState<string>('2022');
+
+  const availableCropsForState = (filtersData?.crops_by_state && filtersData.crops_by_state[selectedState])
+    ? filtersData.crops_by_state[selectedState]
+    : (filtersData?.crops || ['rice', 'wheat']);
 
   // Applied query state
   const [activeState, setActiveState] = useState<string>('Punjab');
   const [activeDistrict, setActiveDistrict] = useState<string>('');
   const [activeCrop, setActiveCrop] = useState<string>('rice');
-  const [activeCropYear, setActiveCropYear] = useState<string>('2020-21');
-  const [activeGroundwaterYear, setActiveGroundwaterYear] = useState<string>('2020');
+  const [activeCropYear, setActiveCropYear] = useState<string>('2023-24');
+  const [activeGroundwaterYear, setActiveGroundwaterYear] = useState<string>('2022');
 
   // Selected unit details state
   const [selectedUnit, setSelectedUnit] = useState<GroundwaterAssessmentUnit | null>(null);
@@ -93,6 +102,14 @@ export const RegionalExplorerPage: React.FC = () => {
     retry: false,
   });
 
+  const handleStateChange = (newState: string) => {
+    setSelectedState(newState);
+    const validCrops = filtersData?.crops_by_state?.[newState];
+    if (validCrops && validCrops.length > 0 && !validCrops.includes(selectedCrop)) {
+      setSelectedCrop(validCrops[0]);
+    }
+  };
+
   const handleApply = () => {
     setActiveState(selectedState);
     setActiveDistrict(selectedDistrict);
@@ -103,22 +120,43 @@ export const RegionalExplorerPage: React.FC = () => {
   };
 
   const handleReset = () => {
-    setSelectedState('Punjab');
+    const defaultSt = filtersData?.default_state || 'Punjab';
+    const defaultCr = filtersData?.default_crop || 'rice';
+    const defaultCrYr = filtersData?.default_crop_year || '2023-24';
+    const defaultGwYr = filtersData?.default_groundwater_year || '2022';
+
+    setSelectedState(defaultSt);
     setSelectedDistrict('');
-    setSelectedCrop('rice');
-    setCropYear('2020-21');
-    setGroundwaterYear('2020');
-    setActiveState('Punjab');
+    setSelectedCrop(defaultCr);
+    setCropYear(defaultCrYr);
+    setGroundwaterYear(defaultGwYr);
+    setActiveState(defaultSt);
     setActiveDistrict('');
-    setActiveCrop('rice');
-    setActiveCropYear('2020-21');
-    setActiveGroundwaterYear('2020');
+    setActiveCrop(defaultCr);
+    setActiveCropYear(defaultCrYr);
+    setActiveGroundwaterYear(defaultGwYr);
     setSelectedUnit(null);
   };
 
   const assessmentUnits = gwData?.assessment_units || [];
   const gwSummary = gwData?.summary;
   const cropResults = cropData?.results || [];
+
+  const hasGwForState = gwStates.includes(activeState);
+  const gwCount = gwSummary?.total_units ?? 0;
+  const isGwUnavailable = !hasGwForState || gwCount === 0;
+  const gwUnavailableReason = !hasGwForState
+    ? `Groundwater assessment not loaded for ${activeState} (starter dataset covers Ludhiana, Punjab only)`
+    : `No CGWB assessment records found for ${activeState} in year ${activeGroundwaterYear}`;
+
+  const isCropUnavailable = cropResults.length === 0;
+  const cropUnavailableReason = activeDistrict
+    ? `District-level crop production is not available in loaded dataset (official state totals only)`
+    : `No crop production records found for ${formatCropName(activeCrop)} in ${activeState} (${activeCropYear})`;
+
+  const totalCropProduction = cropResults.length > 0
+    ? cropResults.reduce((sum, r) => sum + (r.production ?? 0), 0)
+    : null;
 
   // Summary chart data: Groundwater categories
   const gwCategoryChartData = gwSummary
@@ -219,15 +257,20 @@ export const RegionalExplorerPage: React.FC = () => {
           <label className="block text-xs font-semibold text-[#17211B] mb-1.5">State</label>
           <select
             value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
+            onChange={(e) => handleStateChange(e.target.value)}
             className="w-full text-xs rounded-lg border border-[#E1E8E1] bg-white p-2 text-[#17211B]"
           >
             {states.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {s}{gwStates.includes(s) ? ' (CGWB + Production)' : ' (Production only)'}
               </option>
             ))}
           </select>
+          <p className="mt-1 text-[11px] text-[#66736A]">
+            {gwStates.includes(selectedState)
+              ? '✓ State has both CGWB groundwater assessment and crop production records.'
+              : 'ℹ️ Selected state has crop production statistics only. CGWB records in starter pack are limited to Punjab.'}
+          </p>
         </div>
 
         <div>
@@ -241,6 +284,9 @@ export const RegionalExplorerPage: React.FC = () => {
             onChange={(e) => setSelectedDistrict(e.target.value)}
             className="w-full text-xs rounded-lg border border-[#E1E8E1] bg-white p-2 text-[#17211B]"
           />
+          <p className="mt-1 text-[11px] text-[#66736A]">
+            Crop production is reported as state-level totals only. District filter applies to CGWB groundwater units (e.g. Ludhiana).
+          </p>
         </div>
 
         <div>
@@ -250,7 +296,7 @@ export const RegionalExplorerPage: React.FC = () => {
             onChange={(e) => setSelectedCrop(e.target.value)}
             className="w-full text-xs rounded-lg border border-[#E1E8E1] bg-white p-2 text-[#17211B]"
           >
-            {crops.map((c) => (
+            {availableCropsForState.map((c) => (
               <option key={c} value={c}>
                 {formatCropName(c)}
               </option>
@@ -267,9 +313,11 @@ export const RegionalExplorerPage: React.FC = () => {
             onChange={(e) => setCropYear(e.target.value)}
             className="w-full text-xs rounded-lg border border-[#E1E8E1] bg-white p-2 text-[#17211B]"
           >
-            <option value="2020-21">2020-21</option>
-            <option value="2019-20">2019-20</option>
-            <option value="2018-19">2018-19</option>
+            {cropYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -282,9 +330,11 @@ export const RegionalExplorerPage: React.FC = () => {
             onChange={(e) => setGroundwaterYear(e.target.value)}
             className="w-full text-xs rounded-lg border border-[#E1E8E1] bg-white p-2 text-[#17211B]"
           >
-            <option value="2020">2020</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
+            {groundwaterYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
           </select>
         </div>
       </FilterPanel>
@@ -316,10 +366,12 @@ export const RegionalExplorerPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricCard
               label="Assessed Units"
-              value={gwSummary?.total_units}
+              value={isGwUnavailable ? null : gwSummary?.total_units}
               unit="units"
               period={activeGroundwaterYear}
               provenance="OBSERVED"
+              isUnavailable={isGwUnavailable}
+              unavailableReason={gwUnavailableReason}
               tooltip="Total administrative groundwater units recorded for the selected query."
               icon={<Layers className="w-4 h-4" />}
               decimals={0}
@@ -327,10 +379,12 @@ export const RegionalExplorerPage: React.FC = () => {
 
             <MetricCard
               label="Safe Units"
-              value={gwSummary?.safe}
+              value={isGwUnavailable ? null : gwSummary?.safe}
               unit="units"
               period={activeGroundwaterYear}
               provenance="OBSERVED"
+              isUnavailable={isGwUnavailable}
+              unavailableReason={gwUnavailableReason}
               tooltip="Assessment units with stage of groundwater extraction ≤ 70%."
               icon={<StatusBadge status="safe" label="" size="sm" />}
               decimals={0}
@@ -338,10 +392,12 @@ export const RegionalExplorerPage: React.FC = () => {
 
             <MetricCard
               label="Critical / Over-Exploited"
-              value={(gwSummary?.critical || 0) + (gwSummary?.over_exploited || 0)}
+              value={isGwUnavailable ? null : (gwSummary?.critical || 0) + (gwSummary?.over_exploited || 0)}
               unit="units"
               period={activeGroundwaterYear}
               provenance="OBSERVED"
+              isUnavailable={isGwUnavailable}
+              unavailableReason={gwUnavailableReason}
               tooltip="Units where groundwater extraction exceeds natural annual recharge or is approaching threshold."
               icon={<StatusBadge status="over-exploited" label="" size="sm" />}
               decimals={0}
@@ -349,10 +405,12 @@ export const RegionalExplorerPage: React.FC = () => {
 
             <MetricCard
               label="Crop Production Volume"
-              value={cropResults[0]?.production}
+              value={isCropUnavailable ? null : totalCropProduction}
               unit={cropResults[0]?.production_unit || 'tonnes'}
               period={activeCropYear}
               provenance="OBSERVED"
+              isUnavailable={isCropUnavailable}
+              unavailableReason={cropUnavailableReason}
               tooltip="Total reported agricultural yield volume from Ministry of Agriculture."
               icon={<Sprout className="w-4 h-4 text-emerald-700" />}
             />
@@ -434,7 +492,7 @@ export const RegionalExplorerPage: React.FC = () => {
               </div>
 
               {/* Groundwater Category Chart */}
-              {gwCategoryChartData.length > 0 && (
+              {gwSummary && gwSummary.total_units > 0 ? (
                 <ChartCard
                   title="Assessment Category Distribution"
                   subtitle="Unit counts by classification"
@@ -452,6 +510,15 @@ export const RegionalExplorerPage: React.FC = () => {
                     </ResponsiveContainer>
                   </div>
                 </ChartCard>
+              ) : (
+                <div className="bg-white rounded-xl border border-[#E1E8E1] p-5 shadow-xs">
+                  <h3 className="text-sm font-bold text-[#17211B] mb-2">
+                    Assessment Category Distribution
+                  </h3>
+                  <p className="text-xs text-[#66736A] p-4 bg-stone-50 rounded-lg border border-stone-200 text-center">
+                    {gwUnavailableReason}
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -465,7 +532,11 @@ export const RegionalExplorerPage: React.FC = () => {
               data={assessmentUnits}
               columns={gwColumns}
               keyExtractor={(u) => u.assessment_unit_id}
-              emptyMessage="No groundwater assessment units loaded for this filter."
+              emptyMessage={
+                !hasGwForState
+                  ? `Groundwater assessment data is not loaded for ${activeState}. The starter dataset currently covers Ludhiana district, Punjab.`
+                  : `No groundwater assessment records found for ${activeState} for assessment year ${activeGroundwaterYear}.`
+              }
             />
           </div>
 
@@ -478,7 +549,11 @@ export const RegionalExplorerPage: React.FC = () => {
               data={cropResults}
               columns={cropColumns}
               keyExtractor={(c, idx) => `${c.state}-${c.crop}-${c.year}-${idx}`}
-              emptyMessage="No crop production records available for this filter."
+              emptyMessage={
+                activeDistrict
+                  ? `No district-level crop production records found for ${activeDistrict}, ${activeState}. The loaded agricultural statistics dataset contains official state-level totals only. Clear the district filter to view the state total.`
+                  : `No crop production records available for ${formatCropName(activeCrop)} in ${activeState} for year ${activeCropYear}.`
+              }
             />
           </div>
         </div>

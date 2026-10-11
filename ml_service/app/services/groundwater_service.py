@@ -54,7 +54,11 @@ class GroundwaterService:
         if category:
             filtered_data = filtered_data[filtered_data['category'].str.lower() == category.lower()]
         if year:
-            filtered_data = filtered_data[filtered_data['year'] == int(year)]
+            try:
+                y_val = int(year)
+                filtered_data = filtered_data[filtered_data['year'] == y_val]
+            except (ValueError, TypeError):
+                filtered_data = filtered_data.iloc[0:0]
 
         # Convert to response format
         assessment_units = []

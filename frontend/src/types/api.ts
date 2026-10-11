@@ -59,6 +59,8 @@ export interface ExportFootprintResult {
   financial_year: string;
   export_quantity: number;
   export_quantity_unit: string;
+  export_value?: number | null;
+  export_value_currency?: string | null;
   green_water_coefficient?: number | null;
   blue_water_coefficient?: number | null;
   grey_water_coefficient?: number | null;
@@ -85,6 +87,16 @@ export interface ExportLedgerResponse {
     [key: string]: any;
   };
   generated_at: string;
+  message?: string | null;
+}
+
+export interface ExportFiltersResponse {
+  financial_years: string[];
+  commodities: string[];
+  default_financial_year?: string | null;
+  default_commodity?: string | null;
+  available: boolean;
+  export_categories?: string[];
 }
 
 export interface CropProductionResult {
@@ -150,6 +162,22 @@ export interface RegionsOverviewResponse {
   region: string | null;
   year: string | null;
   generated_at: string;
+}
+
+export interface RegionalFiltersResponse {
+  production_states: string[];
+  groundwater_states: string[];
+  overlapping_states: string[];
+  crop_years: string[];
+  groundwater_years: string[];
+  crops: string[];
+  crops_by_state: Record<string, string[]>;
+  districts_by_state: Record<string, string[]>;
+  default_state: string;
+  default_crop: string;
+  default_crop_year: string;
+  default_groundwater_year: string;
+  available: boolean;
 }
 
 export interface CropShiftRequest {

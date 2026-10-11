@@ -179,3 +179,4 @@ ml_service/data/*.xlsx
 
 # Ignore all logs
 *.log
+node_modules/

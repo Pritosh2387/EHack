@@ -1,5 +1,5 @@
 import { apiRequest } from './client';
-import type { ExportLedgerResponse } from '../types/api';
+import type { ExportLedgerResponse, ExportFiltersResponse } from '../types/api';
 
 export interface ExportLedgerFilterParams {
   crop: string;
@@ -15,4 +15,8 @@ export async function fetchExportsLedger(params: ExportLedgerFilterParams): Prom
       water_component: params.water_component || 'all',
     },
   });
+}
+
+export async function fetchExportFilters(): Promise<ExportFiltersResponse> {
+  return apiRequest<ExportFiltersResponse>('/api/v1/exports/filters');
 }

@@ -3,7 +3,12 @@ import type {
   CropProductionResponse,
   GroundwaterStressResponse,
   RegionsOverviewResponse,
+  RegionalFiltersResponse,
 } from '../types/api';
+
+export async function fetchRegionalFilters(): Promise<RegionalFiltersResponse> {
+  return apiRequest<RegionalFiltersResponse>('/api/v1/regions/filters');
+}
 
 export interface CropProductionParams {
   state?: string | null;

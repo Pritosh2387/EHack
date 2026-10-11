@@ -20,11 +20,11 @@ class CropProductionService:
         filtered_data = self.production_data.copy()
 
         if request.state:
-            filtered_data = filtered_data[filtered_data['state'].str.lower() == request.state.lower()]
+            filtered_data = filtered_data[filtered_data['state'].fillna('').astype(str).str.lower() == request.state.lower()]
         if request.district:
-            filtered_data = filtered_data[filtered_data['district'].str.lower() == request.district.lower()]
+            filtered_data = filtered_data[filtered_data['district'].fillna('').astype(str).str.lower() == request.district.lower()]
         if request.crop:
-            filtered_data = filtered_data[filtered_data['crop'].str.lower() == request.crop.lower()]
+            filtered_data = filtered_data[filtered_data['crop'].fillna('').astype(str).str.lower() == request.crop.lower()]
         if request.year:
             filtered_data = filtered_data[filtered_data['year'].astype(str) == str(request.year)]
 
